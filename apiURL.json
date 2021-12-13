@@ -1,0 +1,15 @@
+{
+    "common": {
+        "getUserInfo": "https://mooc.icve.com.cn/common/localStorage/getUserInfo"
+    },
+    "learn": {
+        "study": {
+            "getProcessList": "https://mooc.icve.com.cn/study/learn/getProcessList",
+            "getTopicByModuleId": "https://mooc.icve.com.cn/study/learn/getTopicByModuleId",
+            "getCellByTopicId": "https://mooc.icve.com.cn/study/learn/getCellByTopicId"
+        }
+    },
+    "portal": {
+        "getMyCourse": "https://mooc.icve.com.cn/portal/Course/getMyCourse"
+    }
+}

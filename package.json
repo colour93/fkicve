@@ -1,0 +1,36 @@
+{
+  "name": "fkicve",
+  "version": "0.0.1",
+  "description": "F**k ICVE!!!",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/colour93/fkicve.git"
+  },
+  "keywords": [
+    "icve",
+    "zhijiaoyun",
+    "职教云"
+  ],
+  "author": "colour93",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/colour93/fkicve/issues"
+  },
+  "homepage": "https://github.com/colour93/fkicve#readme",
+  "dependencies": {
+    "axios": "^0.24.0",
+    "qs": "^6.10.2"
+  },
+  "nodemonConfig": {
+    "ignore": [
+      "config.json"
+    ]
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  }
+}
