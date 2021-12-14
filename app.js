@@ -272,7 +272,7 @@ function getCellListByTopicId (courseOpenId, topicId) {
         data = resp.data;
 
         if (data.code!=1) {
-            console.log(code.msg);
+            console.log(data.msg);
             resolve(data);
             return;
         }
@@ -309,7 +309,7 @@ function statStuProcessCellLogAndTimeLong (cellObj) {
                 return;
             }
             const {VideoTimeLong} = data.courseCell;
-            console.log(`时长: ${parseInt(VideoTimeLong/60)}分${VideoTimeLong}秒`);
+            console.log(`时长: ${parseInt(VideoTimeLong/60)}分${VideoTimeLong%60}秒`);
 
             // 然后更新记录
             resp = await axios.get(apiUrl.study.learn.statStuProcessCellLogAndTimeLong, {
@@ -348,8 +348,29 @@ function statStuProcessCellLogAndTimeLong (cellObj) {
 }
 
 // 添加评论区浏览记录
-function addStuViewTopicRemember (course) {
+function addStuViewTopicRemember (item) {
     return new Promise ( async ( resolve, reject ) => {
+
+        const {courseOpenId, resId} = item,
+            topicId = resId;
+        
+        resp = await axios.get(apiUrl.study.discussion.addStuViewTopicRemember, {
+            params: {
+                courseOpenId,
+                topicId
+            }
+        });
+
+        data = resp.data;
+
+        if (data.code!=1) {
+            console.log(data.msg);
+            resolve(data);
+            return;
+        }
+
+        console.log("讨论访问完毕");
+        resolve(1);
 
     } )
 }
@@ -472,17 +493,29 @@ function toDoCell (courseOpenId, topicId) {
 
         for (let cellCount = 0; cellCount < cellList.length; cellCount++) {
             const item = cellList[cellCount];
-            // console.log(cellCount);
             console.log(`正在执行第${cellCount+1}个cell: ${item.cellName}, 共${cellList.length}个cell`)
+            
+            let studyStatus;
+            if (item.isStudyFinish) {
+                studyStatus = "已学习";
+            } else {
+                studyStatus = "未学习";
+            }
+
+            console.log(`状态: ${studyStatus}`);
+            if (item.isStudyFinish) {
+                continue;
+            }
     
             switch (item.cellType) {
                 case 1:
                     console.log(`类型: [${item.cellType}] ${item.categoryName}`);
-                    statStuProcessCellLogAndTimeLong(item);
+                    await statStuProcessCellLogAndTimeLong(item);
                     break;
     
                 case 8:
                     console.log(`类型: [${item.cellType}] 讨论`);
+                    await addStuViewTopicRemember(item);
                     break;
             
                 default:

@@ -9,6 +9,9 @@
             "getCellByTopicId": "https://mooc.icve.com.cn/study/learn/getCellByTopicId",
             "getModulsSliderList": "https://mooc.icve.com.cn/study/learn/getModulsSliderList",
             "statStuProcessCellLogAndTimeLong": "https://mooc.icve.com.cn/study/learn/statStuProcessCellLogAndTimeLong"
+        },
+        "discussion": {
+            "addStuViewTopicRemember": "https://mooc.icve.com.cn/study/discussion/addStuViewTopicRemember"
         }
     },
     "portal": {
