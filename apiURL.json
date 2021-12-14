@@ -2,11 +2,13 @@
     "common": {
         "getUserInfo": "https://mooc.icve.com.cn/common/localStorage/getUserInfo"
     },
-    "learn": {
-        "study": {
+    "study": {
+        "learn": {
             "getProcessList": "https://mooc.icve.com.cn/study/learn/getProcessList",
             "getTopicByModuleId": "https://mooc.icve.com.cn/study/learn/getTopicByModuleId",
-            "getCellByTopicId": "https://mooc.icve.com.cn/study/learn/getCellByTopicId"
+            "getCellByTopicId": "https://mooc.icve.com.cn/study/learn/getCellByTopicId",
+            "getModulsSliderList": "https://mooc.icve.com.cn/study/learn/getModulsSliderList",
+            "statStuProcessCellLogAndTimeLong": "https://mooc.icve.com.cn/study/learn/statStuProcessCellLogAndTimeLong"
         }
     },
     "portal": {

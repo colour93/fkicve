@@ -8,6 +8,8 @@ const fs = require('fs');
 const axios = require('axios');
 const qs = require('qs');
 
+const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36 Edg/96.0.1054.53"
+
 const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout
@@ -39,7 +41,10 @@ async function initialize () {
     let Cookie = await getCookie();
 
     // 设置默认请求header
-    axios.defaults.headers = {Cookie};
+    axios.defaults.headers = {
+        Cookie,
+        'User-Agent': UA
+    };
     axios.defaults.withCredentials=true;
 
     // 获取用户信息
@@ -87,7 +92,7 @@ function getCookie () {
 function getUserInfo () {
     return new Promise ( async ( resolve, reject ) => {
 
-        resp = await axios.get(apiUrl.common.getUserInfo);
+        let resp = await axios.get(apiUrl.common.getUserInfo);
 
         data = resp.data;
 
@@ -123,7 +128,7 @@ function getUserInfo () {
 function getMyCourse () {
     return new Promise ( async ( resolve, rejcet ) => {
 
-        resp = await axios.get(apiUrl.portal.getMyCourse, {
+        let resp = await axios.get(apiUrl.portal.getMyCourse, {
             params: {
                 pageSize: 5000
             }
@@ -157,9 +162,9 @@ function getMyCourse () {
 function getProcessList (courseOpenId) {
     return new Promise ( async ( resolve, reject ) => {
 
-        resp = await axios({
+        let resp = await axios({
             method: 'post',
-            url: apiUrl.learn.study.getProcessList,
+            url: apiUrl.study.learn.getProcessList,
             data: qs.stringify({
                 courseOpenId
             }),
@@ -232,7 +237,7 @@ function toGetProcessList (list) {
 function getTopicListByModuleId (courseOpenId, moduleId) {
     return new Promise ( async ( resolve, rejcet ) => {
 
-        resp = await axios.get(apiUrl.learn.study.getTopicByModuleId, {
+        let resp = await axios.get(apiUrl.study.learn.getTopicByModuleId, {
             params: {
                 courseOpenId,
                 moduleId
@@ -257,7 +262,7 @@ function getTopicListByModuleId (courseOpenId, moduleId) {
 function getCellListByTopicId (courseOpenId, topicId) {
     return new Promise ( async ( resolve, rejcet ) => {
 
-        resp = await axios.get(apiUrl.learn.study.getCellByTopicId, {
+        let resp = await axios.get(apiUrl.study.learn.getCellByTopicId, {
             params: {
                 courseOpenId,
                 topicId
@@ -277,6 +282,79 @@ function getCellListByTopicId (courseOpenId, topicId) {
         resolve(cellList);
     } )
 }
+
+// 更新cell数据 记录时长
+function statStuProcessCellLogAndTimeLong (cellObj) {
+    return new Promise ( async ( resolve, reject ) => {
+        
+        const {courseOpenId, categoryName, cellName} = cellObj,
+            cellId = cellObj.Id;
+
+        let data, resp;
+
+        // 先分类
+        if (categoryName=="视频") {
+
+            // 先获取时长
+            resp = await axios.get(apiUrl.study.learn.getModulsSliderList, {
+                params: {
+                    courseOpenId,
+                    cellId
+                }
+            })
+            data = resp.data;
+            if (data.code!=1) {
+                console.log(data.msg);
+                resolve(data);
+                return;
+            }
+            const {VideoTimeLong} = data.courseCell;
+            console.log(`时长: ${parseInt(VideoTimeLong/60)}分${VideoTimeLong}秒`);
+
+            // 然后更新记录
+            resp = await axios.get(apiUrl.study.learn.statStuProcessCellLogAndTimeLong, {
+                params: {
+                    courseOpenId,
+                    cellId,
+                    auvideoLength: VideoTimeLong,
+                    videoTimeTotalLong: VideoTimeLong
+                }
+            });
+        } else {
+
+            // 其他类型
+            resp = await axios.get(apiUrl.study.learn.statStuProcessCellLogAndTimeLong, {
+                params: {
+                    courseOpenId,
+                    cellId,
+                    videoTimeTotalLong: 0
+                }
+            })
+        }
+        data = resp.data;
+        // console.log(data);
+        if (data.code!=1) {
+            console.log(data.msg);
+            resolve(data);
+            return;
+        };
+        if (data.isStudy) {
+            console.log(`学习完毕`);
+        } else {
+            console.log(`学习失败`)
+        }
+        resolve();
+    } )
+}
+
+// 添加评论区浏览记录
+function addStuViewTopicRemember (course) {
+    return new Promise ( async ( resolve, reject ) => {
+
+    } )
+}
+
+
 
 // 执行刷操作
 function toDoIt (list) {
@@ -338,10 +416,10 @@ function toDoTopic (courseOpenId, moduleId) {
 
         console.log(`该模块总计${topicList.length}个话题`);
 
-        for (let i = 0; i < topicList.length; i++) {
-            const topic = topicList[i];
+        for (let topicCount = 0; topicCount < topicList.length; topicCount++) {
+            const topic = topicList[topicCount];
             let studyStatus;
-            console.log(`正在执行第${i+1}个话题: ${topic.name}, 共${topicList.length}个话题`);
+            console.log(`正在执行第${topicCount+1}个话题: ${topic.name}, 共${topicList.length}个话题`);
             if (topic.studyStatus==-1) studyStatus="未学习";
             if (topic.studyStatus==0) studyStatus="部分学习";
             if (topic.studyStatus==1) studyStatus="已学习";
@@ -350,6 +428,7 @@ function toDoTopic (courseOpenId, moduleId) {
                 await toDoCell(courseOpenId, topic.id);
             }
         }
+        resolve();
 
     })
 }
@@ -358,7 +437,74 @@ function toDoTopic (courseOpenId, moduleId) {
 function toDoCell (courseOpenId, topicId) {
     return new Promise ( async ( resolve, rejcet ) => {
 
-        resolve()
+        cellList = await getCellListByTopicId(courseOpenId, topicId);
+
+        // console.log(cellList);
+        // console.log(cellList.length);
+
+        // for (let i = 0; i < cellList.length; i++) {
+        //     (async function (cellCount) {
+        //         setTimeout(async function () {
+
+        //             const item = cellList[cellCount];
+        //             console.log(cellCount);
+        //             console.log(`正在执行第${cellCount+1}个cell: ${item.cellName}, 共${cellList.length}个cell`)
+
+        //             switch (item.cellType) {
+        //                 case 1:
+        //                     console.log(`类型: [${item.cellType}] ${item.categoryName}`);
+        //                     statStuProcessCellLogAndTimeLong(item);
+        //                     break;
+
+        //                 case 8:
+        //                     console.log(`类型: [${item.cellType}] 讨论`);
+        //                     break;
+                    
+        //                 default:
+        //                     console.log(`未知类型: [${item.cellType}] ${item.categoryName}`);
+        //                     break;
+        //             }
+                    
+        //         },
+        //         2000);
+        //     })(i);
+        // }
+
+        for (let cellCount = 0; cellCount < cellList.length; cellCount++) {
+            const item = cellList[cellCount];
+            // console.log(cellCount);
+            console.log(`正在执行第${cellCount+1}个cell: ${item.cellName}, 共${cellList.length}个cell`)
+    
+            switch (item.cellType) {
+                case 1:
+                    console.log(`类型: [${item.cellType}] ${item.categoryName}`);
+                    statStuProcessCellLogAndTimeLong(item);
+                    break;
+    
+                case 8:
+                    console.log(`类型: [${item.cellType}] 讨论`);
+                    break;
+            
+                default:
+                    console.log(`未知类型: [${item.cellType}] ${item.categoryName}`);
+                    break;
+            }
+            
+        }
+        
+        resolve();
 
     })
+}
+
+// 随机数
+function randomNum(minNum,maxNum){ 
+    switch(arguments.length){ 
+        case 1: 
+            return parseInt(Math.random()*minNum+1,10);
+        case 2: 
+            return parseInt(Math.random()*(maxNum-minNum+1)+minNum,10); 
+        default: 
+            return 0; 
+    } 
 }

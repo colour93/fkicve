@@ -100,26 +100,124 @@ https://mooc.icve.com.cn/study/learn/getCellByTopicId
 
 ##### cellList 中的元素
 
-| 参数            | 类型    | 内容           | 备注                     |
-| --------------- | ------- | -------------- | ------------------------ |
-| Id              | String  | cell id        |                          |
-| categoryName    | String  | 分类           |                          |
-| cellContent     | String  | 内容           |                          |
-| cellName        | String  | 名称           |                          |
-| cellType        | Number  | 类型           | 具体用于区分什么，还未知 |
-| childNodeList   | Array   | 子节点列表     |                          |
-| courseOpenId    | String  | 课程id         |                          |
-| externalLinkUrl | String  | N / A          |                          |
-| isAllowDownLoad | Boolean | 是否允许下载   |                          |
-| isGJS           | Boolean | N / A          |                          |
-| isStudyFinish   | Boolean | 是否学习过     |                          |
-| isUnlock        | Boolean | 是否解锁       |                          |
-| parentId        | String  | 父节点id       | 比如topicId              |
-| resId           | String  | 资源id         |                          |
-| resourceUrl     | String  | 资源url        |                          |
-| sortOrder       | Number  | 排序序号       |                          |
-| topicId         | String  | 话题id         |                          |
-| upCellId        | String  | 上一个cell的id |                          |
+| 参数            | 类型    | 内容           | 备注        |
+| --------------- | ------- | -------------- | ----------- |
+| Id              | String  | cell id        |             |
+| categoryName    | String  | 分类           |             |
+| cellContent     | String  | 内容           |             |
+| cellName        | String  | 名称           |             |
+| cellType        | Number  | 类型           |             |
+| childNodeList   | Array   | 子节点列表     |             |
+| courseOpenId    | String  | 课程id         |             |
+| externalLinkUrl | String  | N / A          |             |
+| isAllowDownLoad | Boolean | 是否允许下载   |             |
+| isGJS           | Boolean | N / A          |             |
+| isStudyFinish   | Boolean | 是否学习过     |             |
+| isUnlock        | Boolean | 是否解锁       |             |
+| parentId        | String  | 父节点id       | 比如topicId |
+| resId           | String  | 资源id         |             |
+| resourceUrl     | String  | 资源url        |             |
+| sortOrder       | Number  | 排序序号       |             |
+| topicId         | String  | 话题id         |             |
+| upCellId        | String  | 上一个cell的id |             |
+
+##### cellType 类型表
+
+| cellType | 内容               | 备注 |
+| -------- | ------------------ | ---- |
+| 5        | 测验               |      |
+| 8        | 讨论               |      |
+| 1        | 文档、视频、图片等 |      |
+| 6        | 作业               |      |
+
+### 更新cell数据 记录时长 (提交用)
+
+https://mooc.icve.com.cn/study/learn/statStuProcessCellLogAndTimeLong
+
+#### 请求体
+
+| 参数               | 必选   | 内容                  | 备注 |
+| ------------------ | ------ | --------------------- | ---- |
+| courseOpenId       | 是     | 开课id                |      |
+| moduleId           | 否     | 模块id                |      |
+| cellId             | 是     | cell id               |      |
+| auvideoLength      | 仅视频 | 视频时长              |      |
+| videoTimeTotalLong | 是     | 视频为时长，非视频为0 |      |
+| sourceForm         | 否     | N / A                 |      |
+
+#### 响应体
+
+##### 根对象
+
+| 参数    | 类型    | 内容         | 备注 |
+| ------- | ------- | ------------ | ---- |
+| code    | Number  | 状态码       |      |
+| isStudy | Boolean | 是否学习成功 |      |
+
+### 获取模块滑动列表 (外加视频时长)
+
+https://mooc.icve.com.cn/study/learn/getModulsSliderList
+
+#### 请求体
+
+| 参数         | 必选 | 内容         | 备注  |
+| ------------ | ---- | ------------ | ----- |
+| courseOpenId | 是   | 开课id       |       |
+| cellId       | 是   | cell id      |       |
+| cellIdHash   | 否   | cell id hash |       |
+| page         | 否   | 页数         |       |
+| fromType     | 否   | 来源类型     | 如stu |
+| moduleId     | 否   | 模块id       |       |
+
+#### 响应体
+
+##### 根对象
+
+| 参数       | 类型           | 内容         | 备注 |
+| ---------- | -------------- | ------------ | ---- |
+| code       | Number         | 状态码       |      |
+| courseCell | Object         | 课程cell对象 |      |
+| isOver     | NUmber         | N / A        |      |
+| modules    | Array (Object) | 模块列表     |      |
+| userId     | String         | 用户id       |      |
+
+##### courseCell 对象 (对象节点太多 这里只写了常用节点)
+
+| 参数          | 类型   | 内容     | 备注   |
+| ------------- | ------ | -------- | ------ |
+| CellName      | String | cell名称 |        |
+| CategoryName  | String | 分类     |        |
+| CellContent   | String | cell内容 | 一般无 |
+| CellType      | Number | cell模式 |        |
+| Id            | String | cell id  |        |
+| CourseOpenId  | String | 开课id   |        |
+| VideoTimeLong | Number | 视频长度 |        |
+
+
+
+## 课程讨论
+
+/study/discussion
+
+### 浏览讨论
+
+https://mooc.icve.com.cn/study/discussion/addStuViewTopicRemember
+
+#### 请求体
+
+| 参数         | 内容   | 备注 |
+| ------------ | ------ | ---- |
+| courseOpenId | 开课id |      |
+| topicId      | 话题id |      |
+
+#### 响应体
+
+##### 根对象
+
+| 参数 | 类型   | 内容   | 备注 |
+| ---- | ------ | ------ | ---- |
+| code | Number | 状态码 |      |
+| msg  | String | 信息   |      |
 
 ## 常规数据
 
