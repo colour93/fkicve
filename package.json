@@ -4,7 +4,8 @@
   "description": "F**k ICVE!!!",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dist": "pkg -t win app.js -o dist\\app-win-x64.exe && pkg -t linux app.js -o dist\\app-linux-x64 && pkg -t macos app.js -o dist\\app-macos"
   },
   "repository": {
     "type": "git",
