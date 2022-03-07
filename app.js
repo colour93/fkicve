@@ -24,7 +24,7 @@ process.stdin.setEncoding('utf8');
 
 mainFor();
 
-async function mainFor () {
+async function mainFor() {
     while (1) {
         await initialize();
     }
@@ -32,7 +32,7 @@ async function mainFor () {
 
 
 // 初始化函数
-async function initialize () {
+async function initialize() {
 
     // 初始化函数内变量
     let userInfo, crouseList;
@@ -45,17 +45,17 @@ async function initialize () {
         Cookie,
         'User-Agent': UA
     };
-    axios.defaults.withCredentials=true;
+    axios.defaults.withCredentials = true;
 
     // 获取用户信息
     userInfo = await getUserInfo();
-    if (!userInfo.Id&&userInfo.code!=1) {
+    if (!userInfo.Id && userInfo.code != 1) {
         return;
     }
 
     // 获取课程列表
     crouseList = await getMyCourse();
-    if (!crouseList||!crouseList.length) {
+    if (!crouseList || !crouseList.length) {
         return;
     }
 
@@ -72,8 +72,8 @@ async function initialize () {
 
 
 // 获取Cookie
-function getCookie () {
-    return new Promise ( async ( resolve, reject ) => {
+function getCookie() {
+    return new Promise(async (resolve, reject) => {
 
         console.log("请输入auth: (直接回车使用config.json中的auth)");
 
@@ -85,24 +85,24 @@ function getCookie () {
             }
         })
 
-    } )
+    })
 }
 
 // 获取用户信息
-function getUserInfo () {
-    return new Promise ( async ( resolve, reject ) => {
+function getUserInfo() {
+    return new Promise(async (resolve, reject) => {
 
         let resp = await axios.get(apiUrl.common.getUserInfo);
 
         data = resp.data;
 
-        if (data.code!=1) {
+        if (data.code != 1) {
             console.log(data.msg)
             resolve(data);
             return;
         }
 
-        const {Cookie} = resp.config.headers;
+        const { Cookie } = resp.config.headers;
 
         fs.writeFile('./config.json', JSON.stringify({
             Cookie
@@ -113,7 +113,7 @@ function getUserInfo () {
             console.log('Cookie已保存');
         })
 
-        const {userInfo} = data;
+        const { userInfo } = data;
 
         console.log(`==用户信息输出==`);
         console.log(`${userInfo.DisplayName} - ${userInfo.UserName}`);
@@ -125,24 +125,27 @@ function getUserInfo () {
 }
 
 // 获取课程列表
-function getMyCourse () {
-    return new Promise ( async ( resolve, rejcet ) => {
+function getMyCourse() {
+    return new Promise(async (resolve, rejcet) => {
 
         let resp = await axios.get(apiUrl.portal.getMyCourse, {
             params: {
+                isFinished: 0,
                 pageSize: 5000
             }
         })
 
         data = resp.data;
 
-        if (data.code!=1) {
+        // console.log(data);
+
+        if (data.code != 1) {
             console.log(data.msg);
             resolve(data);
             return;
         }
 
-        const {list} = data;
+        const { list } = data;
 
         console.log(`==课程列表==`);
 
@@ -159,8 +162,8 @@ function getMyCourse () {
 }
 
 // 获取模块列表 (进度列表)
-function getProcessList (courseOpenId) {
-    return new Promise ( async ( resolve, reject ) => {
+function getProcessList(courseOpenId) {
+    return new Promise(async (resolve, reject) => {
 
         let resp = await axios({
             method: 'post',
@@ -175,7 +178,7 @@ function getProcessList (courseOpenId) {
 
         data = resp.data;
 
-        if (data.code!=1) {
+        if (data.code != 1) {
             console.log(data.msg);
             resolve(data);
             return;
@@ -187,7 +190,7 @@ function getProcessList (courseOpenId) {
             resolve(data);
         }
 
-        let {moduleList} = data.proces;
+        let { moduleList } = data.proces;
 
         for (let i = 0; i < moduleList.length; i++) {
             const item = moduleList[i];
@@ -200,15 +203,15 @@ function getProcessList (courseOpenId) {
 }
 
 // 为 获取模块列表 (上层)
-function toGetProcessList (list) {
-    return new Promise ( async ( resolve, rejcet ) => {
+function toGetProcessList(list) {
+    return new Promise(async (resolve, rejcet) => {
 
         console.log("请输入课程序号: (如1)")
-        
+
         rl.once('line', async (input) => {
 
             id = parseInt(input);
-            if (isNaN(id)||id>=list.length||id<0) {
+            if (isNaN(id) || id >= list.length || id < 0) {
                 console.log(`错误: 输入错误!`);
                 resolve(null);
             } else {
@@ -230,12 +233,12 @@ function toGetProcessList (list) {
             }
         })
 
-    } )
+    })
 }
 
 // 获取话题列表
-function getTopicListByModuleId (courseOpenId, moduleId) {
-    return new Promise ( async ( resolve, rejcet ) => {
+function getTopicListByModuleId(courseOpenId, moduleId) {
+    return new Promise(async (resolve, rejcet) => {
 
         let resp = await axios.get(apiUrl.study.learn.getTopicByModuleId, {
             params: {
@@ -246,21 +249,21 @@ function getTopicListByModuleId (courseOpenId, moduleId) {
 
         data = resp.data;
 
-        if (data.code!=1) {
+        if (data.code != 1) {
             console.log(code.msg);
             resolve(data);
             return;
         }
 
-        const {topicList} = data;
+        const { topicList } = data;
 
         resolve(topicList);
-    } )
+    })
 }
 
 // 获取cell列表
-function getCellListByTopicId (courseOpenId, topicId) {
-    return new Promise ( async ( resolve, rejcet ) => {
+function getCellListByTopicId(courseOpenId, topicId) {
+    return new Promise(async (resolve, rejcet) => {
 
         let resp = await axios.get(apiUrl.study.learn.getCellByTopicId, {
             params: {
@@ -271,29 +274,29 @@ function getCellListByTopicId (courseOpenId, topicId) {
 
         data = resp.data;
 
-        if (data.code!=1) {
+        if (data.code != 1) {
             console.log(data.msg);
             resolve(data);
             return;
         }
 
-        const {cellList} = data;
+        const { cellList } = data;
 
         resolve(cellList);
-    } )
+    })
 }
 
 // 更新cell数据 记录时长
-function statStuProcessCellLogAndTimeLong (cellObj) {
-    return new Promise ( async ( resolve, reject ) => {
-        
-        const {courseOpenId, categoryName, cellName} = cellObj,
+function statStuProcessCellLogAndTimeLong(cellObj) {
+    return new Promise(async (resolve, reject) => {
+
+        const { courseOpenId, categoryName, cellName } = cellObj,
             cellId = cellObj.Id;
 
         let data, resp;
 
         // 先分类
-        if (categoryName=="视频") {
+        if (categoryName == "视频") {
 
             // 先获取时长
             resp = await axios.get(apiUrl.study.learn.getModulsSliderList, {
@@ -303,13 +306,13 @@ function statStuProcessCellLogAndTimeLong (cellObj) {
                 }
             })
             data = resp.data;
-            if (data.code!=1) {
+            if (data.code != 1) {
                 console.log(data.msg);
                 resolve(data);
                 return;
             }
-            const {VideoTimeLong} = data.courseCell;
-            console.log(`时长: ${parseInt(VideoTimeLong/60)}分${VideoTimeLong%60}秒`);
+            const { VideoTimeLong } = data.courseCell;
+            console.log(`时长: ${parseInt(VideoTimeLong / 60)}分${VideoTimeLong % 60}秒`);
 
             // 然后更新记录
             resp = await axios.get(apiUrl.study.learn.statStuProcessCellLogAndTimeLong, {
@@ -333,7 +336,7 @@ function statStuProcessCellLogAndTimeLong (cellObj) {
         }
         data = resp.data;
         // console.log(data);
-        if (data.code!=1) {
+        if (data.code != 1) {
             console.log(data.msg);
             resolve(data);
             return;
@@ -344,16 +347,16 @@ function statStuProcessCellLogAndTimeLong (cellObj) {
             console.log(`学习失败`)
         }
         resolve();
-    } )
+    })
 }
 
 // 添加评论区浏览记录
-function addStuViewTopicRemember (item) {
-    return new Promise ( async ( resolve, reject ) => {
+function addStuViewTopicRemember(item) {
+    return new Promise(async (resolve, reject) => {
 
-        const {courseOpenId, resId} = item,
+        const { courseOpenId, resId } = item,
             topicId = resId;
-        
+
         resp = await axios.get(apiUrl.study.discussion.addStuViewTopicRemember, {
             params: {
                 courseOpenId,
@@ -363,7 +366,7 @@ function addStuViewTopicRemember (item) {
 
         data = resp.data;
 
-        if (data.code!=1) {
+        if (data.code != 1) {
             console.log(data.msg);
             resolve(data);
             return;
@@ -372,14 +375,14 @@ function addStuViewTopicRemember (item) {
         console.log("讨论访问完毕");
         resolve(1);
 
-    } )
+    })
 }
 
 
 
 // 执行刷操作
-function toDoIt (list) {
-    return new Promise ( async (resolve, rejcet) => {
+function toDoIt(list) {
+    return new Promise(async (resolve, rejcet) => {
 
         console.log(`请输入要刷的模块序号:`);
 
@@ -387,13 +390,13 @@ function toDoIt (list) {
 
             // 判断输入是否整数,且在范围内
             id = parseInt(input);
-            if (isNaN(id)||id<0||id>list.length) {
+            if (isNaN(id) || id < 0 || id > list.length) {
                 console.log(`错误: 请输入正确的数值!`);
                 resolve(null);
             } else {
 
                 // 执行函数操作
-                if (id==list.length) {
+                if (id == list.length) {
                     await toDoAllModule(list);
                 } else {
                     await toDoTopic(list[id].courseOpenId, list[id].id);
@@ -407,15 +410,15 @@ function toDoIt (list) {
 }
 
 // 处理所有模块的子函数
-function toDoAllModule (list) {
-    return new Promise ( async (resolve, reject) => {
+function toDoAllModule(list) {
+    return new Promise(async (resolve, reject) => {
 
         console.log(`正在执行全部模块完成操作...`);
 
         for (let i = 0; i < list.length; i++) {
             const item = list[i];
-            console.log(`正在执行第${i+1}个模块: ${item.name}, 共${list.length}个模块`);
-            if (item.percent!=100) {
+            console.log(`正在执行第${i + 1}个模块: ${item.name}, 共${list.length}个模块`);
+            if (item.percent != 100) {
                 await toDoTopic(item.courseOpenId, item.id);
             }
         }
@@ -424,8 +427,8 @@ function toDoAllModule (list) {
 }
 
 // 处理当前话题(下的所有cell)
-function toDoTopic (courseOpenId, moduleId) {
-    return new Promise ( async ( resolve, rejcet ) => {
+function toDoTopic(courseOpenId, moduleId) {
+    return new Promise(async (resolve, rejcet) => {
 
         // 获取topic
         topicList = await getTopicListByModuleId(courseOpenId, moduleId);
@@ -440,13 +443,14 @@ function toDoTopic (courseOpenId, moduleId) {
         for (let topicCount = 0; topicCount < topicList.length; topicCount++) {
             const topic = topicList[topicCount];
             let studyStatus;
-            console.log(`正在执行第${topicCount+1}个话题: ${topic.name}, 共${topicList.length}个话题`);
-            if (topic.studyStatus==-1) studyStatus="未学习";
-            if (topic.studyStatus==0) studyStatus="部分学习";
-            if (topic.studyStatus==1) studyStatus="已学习";
+            console.log(`正在执行第${topicCount + 1}个话题: ${topic.name}, 共${topicList.length}个话题`);
+            if (topic.studyStatus == -1) studyStatus = "未学习";
+            if (topic.studyStatus == 0) studyStatus = "部分学习";
+            if (topic.studyStatus == 1) studyStatus = "已学习";
             console.log(`状态: ${studyStatus}`);
-            if (topic.studyStatus!=1) {
+            if (topic.studyStatus != 1) {
                 await toDoCell(courseOpenId, topic.id);
+                await wait(randomNum(0, 3) * 1000);
             }
         }
         resolve();
@@ -455,46 +459,29 @@ function toDoTopic (courseOpenId, moduleId) {
 }
 
 // 处理cell
-function toDoCell (courseOpenId, topicId) {
-    return new Promise ( async ( resolve, rejcet ) => {
+function toDoCell(courseOpenId, topicId) {
+    return new Promise(async (resolve, rejcet) => {
 
         cellList = await getCellListByTopicId(courseOpenId, topicId);
 
-        // console.log(cellList);
-        // console.log(cellList.length);
+        await toDoCellFunc(cellList);
 
-        // for (let i = 0; i < cellList.length; i++) {
-        //     (async function (cellCount) {
-        //         setTimeout(async function () {
+        resolve();
 
-        //             const item = cellList[cellCount];
-        //             console.log(cellCount);
-        //             console.log(`正在执行第${cellCount+1}个cell: ${item.cellName}, 共${cellList.length}个cell`)
+    })
+}
 
-        //             switch (item.cellType) {
-        //                 case 1:
-        //                     console.log(`类型: [${item.cellType}] ${item.categoryName}`);
-        //                     statStuProcessCellLogAndTimeLong(item);
-        //                     break;
+// 处理cell（循环
+function toDoCellFunc(cellList) {
 
-        //                 case 8:
-        //                     console.log(`类型: [${item.cellType}] 讨论`);
-        //                     break;
-                    
-        //                 default:
-        //                     console.log(`未知类型: [${item.cellType}] ${item.categoryName}`);
-        //                     break;
-        //             }
-                    
-        //         },
-        //         2000);
-        //     })(i);
-        // }
+    return new Promise(async (resolve, reject) => {
+
 
         for (let cellCount = 0; cellCount < cellList.length; cellCount++) {
+
             const item = cellList[cellCount];
-            console.log(`正在执行第${cellCount+1}个cell: ${item.cellName}, 共${cellList.length}个cell`)
-            
+            console.log(`正在执行第${cellCount + 1}个cell: ${item.cellName}, 共${cellList.length}个cell`)
+
             let studyStatus;
             if (item.isStudyFinish) {
                 studyStatus = "已学习";
@@ -506,38 +493,55 @@ function toDoCell (courseOpenId, topicId) {
             if (item.isStudyFinish) {
                 continue;
             }
-    
+
             switch (item.cellType) {
                 case 1:
                     console.log(`类型: [${item.cellType}] ${item.categoryName}`);
                     await statStuProcessCellLogAndTimeLong(item);
                     break;
-    
+
+                // 为什么会有子节点这种恶心的东西
+                case 4:
+                    console.log(`类型: [${item.cellType}] 子节点 共${item.childNodeList.length}个`);
+                    await toDoCellFunc(item.childNodeList);
+                    break;
+
                 case 8:
                     console.log(`类型: [${item.cellType}] 讨论`);
                     await addStuViewTopicRemember(item);
                     break;
-            
+
                 default:
                     console.log(`未知类型: [${item.cellType}] ${item.categoryName}`);
                     break;
             }
-            
-        }
-        
-        resolve();
 
+        }
+
+        resolve();
     })
+
 }
 
 // 随机数
-function randomNum(minNum,maxNum){ 
-    switch(arguments.length){ 
-        case 1: 
-            return parseInt(Math.random()*minNum+1,10);
-        case 2: 
-            return parseInt(Math.random()*(maxNum-minNum+1)+minNum,10); 
-        default: 
-            return 0; 
-    } 
+function randomNum(minNum, maxNum) {
+    switch (arguments.length) {
+        case 1:
+            return parseInt(Math.random() * minNum + 1, 10);
+        case 2:
+            return parseInt(Math.random() * (maxNum - minNum + 1) + minNum, 10);
+        default:
+            return 0;
+    }
+}
+
+// 延迟
+function wait(ms) {
+    return new Promise((resolve, reject) => {
+
+        setTimeout(() => {
+            resolve();
+        }, ms)
+
+    })
 }
